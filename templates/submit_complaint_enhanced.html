@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Complaint - Smart System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --bg-light: #f9fafb;
+      --text-dark: #1f2937;
+      --border-color: #e5e7eb;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1f2937;
+      --text-dark: #f9fafb;
+      --border-color: #374151;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e0e7ff 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+
+    /* Navigation */
+    nav {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav h1 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-color);
+    }
+
+    .theme-toggle {
+      background: var(--primary-color);
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.3s;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.05);
+    }
+
+    /* Container */
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary-color);
+      font-size: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* Drag & Drop File Upload */
+    .file-upload-area {
+      border: 3px dashed var(--border-color);
+      border-radius: 15px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: var(--bg-light);
+    }
+
+    .file-upload-area:hover,
+    .file-upload-area.dragging {
+      border-color: var(--primary-color);
+      background: rgba(79, 70, 229, 0.05);
+    }
+
+    .file-upload-area i {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    .file-upload-area p {
+      margin: 10px 0;
+      color: #6b7280;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .file-preview {
+      margin-top: 15px;
+      padding: 15px;
+      background: var(--bg-light);
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .file-preview.active {
+      display: flex;
+    }
+
+    .file-preview i {
+      font-size: 2rem;
+      color: var(--success-color);
+    }
+
+    /* Voice Input Button */
+    .voice-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--primary-color);
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .voice-btn:hover {
+      background: #4338ca;
+    }
+
+    .voice-btn.recording {
+      background: var(--danger-color);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .submit-btn.loading .spinner {
+      display: inline-block;
+    }
+
+    /* Success Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 20px 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: none;
+      align-items: center;
+      gap: 15px;
+      animation: slideInRight 0.5s ease;
+      z-index: 1000;
+    }
+
+    .toast.active {
+      display: flex;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .toast.success {
+      border-left: 5px solid var(--success-color);
+    }
+
+    .toast.error {
+      border-left: 5px solid var(--danger-color);
+    }
+
+    .toast i {
+      font-size: 1.5rem;
+    }
+
+    .toast.success i {
+      color: var(--success-color);
+    }
+
+    .toast.error i {
+      color: var(--danger-color);
+    }
+
+    /* Success Modal */
+    .success-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .success-modal.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .success-modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 500px;
+      animation: modalSlideUp 0.4s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    @keyframes modalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .success-modal-content .success-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--success-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.5s ease;
+    }
+
+    @keyframes scaleIn {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .success-modal-content .success-icon i {
+      font-size: 40px;
+      color: white;
+    }
+
+    .success-modal-content h3 {
+      color: var(--success-color);
+      font-size: 2rem;
+      margin-bottom: 15px;
+    }
+
+    .success-modal-content p {
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .success-modal-content .complaint-id {
+      background: var(--bg-light);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .success-modal-content .modal-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+
+    .success-modal-content .modal-btn:hover {
+      background: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Priority Badge (Auto-detected) */
+    .priority-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .priority-high {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .priority-medium {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .priority-low {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px;
+        padding: 25px;
+      }
+
+      nav {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <h1><i class="fas fa-ticket-alt"></i> Smart Complaints</h1>
+    <div class="nav-links">
+      <!-- Dashboard section removed -->
+      <a href="/admin"><i class="fas fa-user-shield"></i> Admin</a>
+      <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container">
+    <h2><i class="fas fa-paper-plane"></i> Submit Complaint</h2>
+    
+    <form id="complaintForm">
+      <!-- Student Name -->
+      <div class="form-group">
+        <label for="studentName"><i class="fas fa-user"></i> Your Name *</label>
+        <input type="text" id="studentName" name="student_name" placeholder="Enter your full name" required>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email *</label>
+        <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+      </div>
+
+      <!-- Title -->
+      <div class="form-group">
+        <label for="title"><i class="fas fa-heading"></i> Complaint Title *</label>
+        <input type="text" id="title" name="title" placeholder="Brief title for your complaint" required>
+      </div>
+
+      <!-- Type -->
+      <div class="form-group">
+        <label for="type"><i class="fas fa-tag"></i> Category *</label>
+        <select id="type" name="type" required>
+          <option value="">Select a category</option>
+          <option value="Academic">Academic</option>
+          <option value="Hostel">Hostel</option>
+          <option value="Infrastructure">Infrastructure</option>
+          <option value="Cafeteria">Cafeteria</option>
+          <option value="Transport">Transport</option>
+          <option value="Library">Library</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Description with Voice Input -->
+      <div class="form-group">
+        <label for="description"><i class="fas fa-align-left"></i> Description *</label>
+        <div class="input-wrapper">
+          <textarea id="description" name="description" placeholder="Describe your complaint in detail..." required></textarea>
+          <button type="button" class="voice-btn" onclick="startVoiceInput()">
+            <i class="fas fa-microphone"></i>
+          </button>
+        </div>
+        <div id="priorityPreview"></div>
+      </div>
+
+      <!-- File Upload (Drag & Drop) -->
+      <div class="form-group">
+        <label><i class="fas fa-paperclip"></i> Attach File (Optional)</label>
+        <div class="file-upload-area" id="fileUploadArea">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p><strong>Drag & drop</strong> or <strong>click to upload</strong></p>
+          <p style="font-size: 0.85rem;">Supports: Images, PDF, DOC (Max 10MB)</p>
+        </div>
+        <input type="file" id="fileInput" name="file" accept="image/*,.pdf,.doc,.docx">
+        <div class="file-preview" id="filePreview">
+          <i class="fas fa-file-check"></i>
+          <span id="fileName"></span>
+          <button type="button" onclick="removeFile()" style="margin-left: auto; background: var(--danger-color); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <i class="fas fa-paper-plane"></i> Submit Complaint
+        <span class="spinner"></span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <div>
+      <strong id="toastTitle">Success!</strong>
+      <p id="toastMessage">Your complaint has been submitted.</p>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="success-modal" id="successModal">
+    <div class="success-modal-content">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+      <h3>Complaint Submitted Successfully!</h3>
+      <p>Thank you for your submission.</p>
+      <p>Your complaint has been registered and will be reviewed by our team shortly.</p>
+      <div class="complaint-id">
+        <i class="fas fa-ticket-alt"></i> Complaint ID: <span id="modalComplaintId">-</span>
+      </div>
+      <p style="font-size: 0.9rem; color: #888;">You will receive email updates on the progress.</p>
+      <button class="modal-btn" onclick="closeSuccessModal()">Got it!</button>
+    </div>
+  </div>
+
+  <!-- Socket.IO for Real-time -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  
+  <script>
+    // Initialize Socket.IO
+    const socket = io();
+
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      const icon = document.querySelector('.theme-toggle i');
+      icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') {
+      document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+    }
+
+    // File Upload - Drag & Drop
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+
+    fileUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileUploadArea.classList.add('dragging');
+    });
+
+    fileUploadArea.addEventListener('dragleave', () => {
+      fileUploadArea.classList.remove('dragging');
+    });
+
+    fileUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileUploadArea.classList.remove('dragging');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        showFilePreview(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        showFilePreview(e.target.files[0]);
+      }
+    });
+
+    function showFilePreview(file) {
+      fileName.textContent = file.name;
+      filePreview.classList.add('active');
+    }
+
+    function removeFile() {
+      fileInput.value = '';
+      filePreview.classList.remove('active');
+    }
+
+    // Voice Input
+    let recognition;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        document.getElementById('description').value = transcript;
+        checkPriority();
+      };
+    }
+
+    function startVoiceInput() {
+      const btn = event.target.closest('.voice-btn');
+      if (!recognition) {
+        showToast('Voice input not supported', 'Your browser does not support voice input', 'error');
+        return;
+      }
+
+      if (btn.classList.contains('recording')) {
+        recognition.stop();
+        btn.classList.remove('recording');
+      } else {
+        recognition.start();
+        btn.classList.add('recording');
+      }
+    }
+
+    // Auto-detect Priority
+    const titleInput = document.getElementById('title');
+    const descInput = document.getElementById('description');
+    const priorityPreview = document.getElementById('priorityPreview');
+
+    titleInput.addEventListener('input', checkPriority);
+    descInput.addEventListener('input', checkPriority);
+
+    function checkPriority() {
+      const text = (titleInput.value + ' ' + descInput.value).toLowerCase();
+      const highKeywords = ['urgent', 'emergency', 'critical', 'immediately', 'asap', 'severe'];
+      const medKeywords = ['important', 'soon', 'attention', 'issue'];
+      
+      let priority = 'Low';
+      let className = 'priority-low';
+      
+      for (let keyword of highKeywords) {
+        if (text.includes(keyword)) {
+          priority = 'High';
+          className = 'priority-high';
+          break;
+        }
+      }
+      
+      if (priority === 'Low') {
+        for (let keyword of medKeywords) {
+          if (text.includes(keyword)) {
+            priority = 'Medium';
+            className = 'priority-medium';
+            break;
+          }
+        }
+      }
+      
+      if (text.length > 10) {
+        priorityPreview.innerHTML = `<span class="priority-badge ${className}">Auto-detected Priority: ${priority}</span>`;
+      } else {
+        priorityPreview.innerHTML = '';
+      }
+    }
+
+    // Form Submission
+    document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+      
+      const formData = new FormData(e.target);
+      
+      try {
+        const response = await fetch('/submit', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Show success modal with complaint ID
+          showSuccessModal(data.complaint_id);
+          
+          // Also show toast for mobile users
+          showToast('Success!', 'Your complaint has been submitted successfully', 'success');
+          
+          // Clear form
+          e.target.reset();
+          document.getElementById('priorityPreview').innerHTML = '';
+        } else {
+          showToast('Error', data.error || 'Failed to submit complaint', 'error');
+        }
+      } catch (error) {
+        showToast('Error', 'Network error. Please try again', 'error');
+      } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Toast Notification
+    function showToast(title, message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      const icon = toast.querySelector('i');
+      
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      
+      toast.className = `toast ${type} active`;
+      icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle';
+      
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 5000);
+    }
+
+    // Success Modal Functions
+    function showSuccessModal(complaintId) {
+      const modal = document.getElementById('successModal');
+      const modalComplaintId = document.getElementById('modalComplaintId');
+      
+      modalComplaintId.textContent = complaintId || 'N/A';
+      modal.classList.add('active');
+    }
+
+    function closeSuccessModal() {
+      const modal = document.getElementById('successModal');
+      modal.classList.remove('active');
+      
+      // Optional: redirect to home after closing modal
+      // window.location.href = '/';
+    }
+
+    // Listen for badge notifications
+    socket.on('badge_earned', (data) => {
+      const userEmail = document.getElementById('email').value;
+      if (data.email === userEmail) {
+        showToast('Badge Earned!', 'Congratulations! You earned a new badge', 'success');
+      }
+    });
+  </script>
+</body>
+</html>

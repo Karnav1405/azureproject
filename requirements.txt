@@ -1,9 +1,17 @@
 Flask
+Flask-SocketIO
 python-dotenv
 pyodbc
 azure-storage-blob
 requests
 opencensus-ext-azure
 gunicorn
+qrcode[pil]
+reportlab
+openpyxl
+pandas
+python-engineio
+python-socketio
+eventlet
 
 
